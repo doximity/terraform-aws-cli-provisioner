@@ -1,14 +1,3 @@
-# terraform-aws-cli-provisioner
-
-A helper module for running the aws cli from within terraform in a `local-exec` provisioner
-
-This is a module of last resort.
-
-If a terraform resource doesn't exist, of for some other reason you need to run a raw `aws` cli command from within terraform, this module helps you do that.
-
-It generates a script that will assume the correct AWS role so you can then execute the cli command in the proper context (meaning, using the same AWS role as the corresponding terraform aws provider).
-
-```hcl
 provider "aws" {
   # we are assuming a role to work with AWS. In this example it's obvious which one because
   # it's right here, but in the real world (in a module) you don't know in advance which
@@ -79,30 +68,3 @@ module "provisioner" {
   # correct corresponding assume role commands
   source = "../.."
 }
-
-```
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.48.0 |
-| <a name="provider_external"></a> [external](#provider\_external) | ~> 2.1 |
-## Requirements
-
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.48.0 |
-| <a name="requirement_external"></a> [external](#requirement\_external) | ~> 2.1 |
-## Inputs
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_debug_output"></a> [debug\_output](#input\_debug\_output) | Whether to output some minimal debug information from the generated script about which role is being assumed by the script. | `bool` | `true` | no |
-## Outputs
-
-| Name | Description |
-|------|-------------|
-| <a name="output_script"></a> [script](#output\_script) | A string that contains a bash script that will assume the correct role for running an aws cli command |
-

@@ -1,0 +1,17 @@
+formatter: "markdown"
+output:
+  file: "README.md"
+  mode: replace
+  template: |
+    {{ .Content }}
+content: |
+  {{ .Header }}
+
+  ```hcl
+  {{ include "examples/shield-protection/main.tf" }}
+  ```
+
+  {{ .Providers }}
+  {{ .Requirements }}
+  {{ .Inputs }}
+  {{ .Outputs }}

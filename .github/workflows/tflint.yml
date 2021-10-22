@@ -1,0 +1,16 @@
+name: tflint
+on: [pull_request]
+jobs:
+  tflint:
+    name: runner / tflint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@master
+
+      - name: tflint
+        uses: reviewdog/action-tflint@v1.13.0
+        with:
+          github_token: ${{ secrets.github_token }}
+          filter_mode: nofilter

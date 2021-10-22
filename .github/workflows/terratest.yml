@@ -1,0 +1,49 @@
+name: terratest
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  terratest:
+    name: Run Terratest
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+      - uses: autero1/action-terraform@v1.0.3
+        with:
+          terraform_version: 1.0.6
+      - run: sleep 5 # there's still a race condition for now
+      - name: Configure AWS
+        run: |
+          export AWS_ROLE_ARN=${{ secrets.AWS_BASE_ROLE_ARN }}
+          export AWS_WEB_IDENTITY_TOKEN_FILE=$(pwd)/awscreds
+          export AWS_DEFAULT_REGION=us-east-1
+
+          echo AWS_WEB_IDENTITY_TOKEN_FILE=$AWS_WEB_IDENTITY_TOKEN_FILE >> $GITHUB_ENV
+          echo AWS_ROLE_ARN=$AWS_ROLE_ARN >> $GITHUB_ENV
+          echo AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION >> $GITHUB_ENV
+          echo $ACTIONS_ID_TOKEN_REQUEST_TOKEN > tmp
+
+          curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/$GITHUB_REPOSITORY" | jq -r '.value' > $AWS_WEB_IDENTITY_TOKEN_FILE
+
+          aws sts get-caller-identity
+      - name: Run Go Tests
+        env:
+          AWS_SDK_LOAD_CONFIG: true
+          TF_VAR_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME_ARN }}
+        run: |
+          go get gotest.tools/gotestsum
+          gotestsum --junitfile terratest-junit.xml -- -v -timeout 99999s ./...
+
+      - uses: actions/upload-artifact@v2  # upload test results
+        if: success() || failure()        # run this step even if previous step failed
+        with:
+          name: test-results
+          path: terratest-junit.xml
