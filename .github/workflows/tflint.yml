@@ -3,7 +3,7 @@ on: [pull_request]
 jobs:
   tflint:
     name: runner / tflint
-    runs-on: ubuntu-latest
+    runs-on: general-purpose
 
     steps:
       - name: Clone repo

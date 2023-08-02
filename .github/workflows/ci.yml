@@ -6,7 +6,7 @@ on:
       - completed
 jobs:
   report:
-    runs-on: ubuntu-latest
+    runs-on: general-purpose
     steps:
     - uses: dorny/test-reporter@v1
       with:
